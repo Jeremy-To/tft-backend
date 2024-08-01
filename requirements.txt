@@ -2,3 +2,4 @@ pefile
 scipy
 yara-python
 flask
+gunicorn
