@@ -1,80 +1,80 @@
-# Analyseur de fichiers PCAP avec VirusTotal
+# Analyseur de Malware et Forensique
 
-Cette application Flask permet d'analyser des fichiers PCAP en extrayant les fichiers qu'ils contiennent et en les scannant via l'API VirusTotal.
+Cette application Flask fournit une API pour analyser des fichiers à des fins de détection de malware et d'investigation forensique.
 
 ## Fonctionnalités
 
-- Extraction de fichiers à partir de PCAP utilisant tshark
-- Analyse des fichiers extraits (taille, hash SHA256)
-- Scan des fichiers via l'API VirusTotal
-- Interface API REST pour soumettre des fichiers PCAP et obtenir les résultats d'analyse
+### Analyse de Malware
+- Extraction de chaînes de caractères
+- Calcul d'entropie
+- Énumération des en-têtes
+- Détermination du langage de programmation
+- Analyse des sections
+- Détection de packer
+- Liste des imports et exports
+- Recherche de signatures YARA
+
+### Analyse Forensique
+- Extraction de chaînes de caractères
+- Extraction de métadonnées
 
 ## Prérequis
 
-- Docker
-- Un compte Render
-- Une clé API VirusTotal
+- Python 3.7+
+- Flask
+- pefile
+- yara-python
+- Autres dépendances listées dans `requirements.txt`
 
-## Déploiement sur Render
+## Installation
 
-1. Créez un nouveau Web Service sur Render
-2. Choisissez l'option "Deploy from a Docker Registry"
-3. Configurez les variables d'environnement :
-   - `API_SECRET`: Votre clé API VirusTotal
-   - `PORT`: 5000 (ou le port de votre choix)
+1. Clonez ce dépôt
+2. Installez les dépendances :
+pip install -r requirements.txt
+## Utilisation
 
-4. Déployez l'application
+1. Lancez l'application :
+python app.py
+ou avec Gunicorn :
+gunicorn app:application
 
-## Utilisation de l'API
+2. Envoyez une requête POST à `/analyze` avec les paramètres suivants :
+- `file` : Le fichier à analyser
+- `analysis_type` : `malware` ou `forensic`
+- `operation` : L'opération spécifique à effectuer
 
-### Analyser un fichier PCAP
+### Exemple de requête
 
-POST /analyze
-Content-Type: multipart/form-data
-file: [Fichier PCAP]
+```python
+import requests
 
-Réponse :
+url = "http://localhost:5000/analyze"
+files = {"file": open("sample.exe", "rb")}
+data = {"analysis_type": "malware", "operation": "strings"}
 
-```json
-{
-  "extracted_files": {
-    "http": [
-      ["fichier1.exe", 1.5, "sha256_hash1"],
-      ["fichier2.dll", 0.5, "sha256_hash2"]
-    ],
-    "smb": [
-      ["fichier3.doc", 2.0, "sha256_hash3"]
-    ]
-  },
-  "vt_results": [
-    {
-      "filename": "fichier1.exe",
-      "hash": "sha256_hash1",
-      "score": "3/58",
-      "vt_link": "https://www.virustotal.com/gui/file/sha256_hash1",
-      "is_malicious": true
-    },
-    {
-      "filename": "fichier2.dll",
-      "hash": "sha256_hash2",
-      "score": "0/58",
-      "vt_link": "https://www.virustotal.com/gui/file/sha256_hash2",
-      "is_malicious": false
-    },
-    {
-      "filename": "fichier3.doc",
-      "hash": "sha256_hash3",
-      "status": "unknown"
-    }
-  ]
-}
-```
-## Développement local
+response = requests.post(url, files=files, data=data)
+print(response.json())
+Opérations disponibles
+Malware
 
-Clonez ce dépôt
-Installez les dépendances : pip install -r requirements.txt
-Configurez la variable d'environnement API_SECRET
-Lancez l'application : python app.py
+strings : Extraction de chaînes
+entropy : Calcul d'entropie
+headers : Énumération des en-têtes
+language : Détermination du langage
+sections : Analyse des sections
+packer : Détection de packer
+imports : Liste des imports
+exports : Liste des exports
+yara : Recherche de signatures YARA
 
+Forensique
+
+strings : Extraction de chaînes
+metadata : Extraction de métadonnées
+
+Configuration YARA
+Pour utiliser la recherche de signatures YARA, spécifiez le répertoire des règles YARA avec le paramètre yara_dir dans la requête.
+Sécurité
+Assurez-vous de déployer cette application dans un environnement sécurisé, car elle manipule potentiellement des fichiers malveillants.
 Licence
 Ce projet est sous licence MIT.
