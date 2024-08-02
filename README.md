@@ -68,8 +68,8 @@ Réponse :
     }
   ]
 }
-
-Développement local
+```
+## Développement local
 
 Clonez ce dépôt
 Installez les dépendances : pip install -r requirements.txt
