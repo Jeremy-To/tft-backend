@@ -78,5 +78,3 @@ Lancez l'application : python app.py
 
 Licence
 Ce projet est sous licence MIT.
-
-Cette documentation fournit un aperçu de l'application, explique comment la déployer sur Render avec Docker, décrit l'utilisation de l'API et donne des instructions pour le développement local. N'hésitez pas à me demander si vous souhaitez des modifications ou des ajouts à cette documentation.
