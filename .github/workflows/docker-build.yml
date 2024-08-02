@@ -1,25 +1,13 @@
-name: CI/CD Pipeline
+name: Docker Build and Security Scan
 
 on:
   push:
-    branches: [main]
+    branches: ['main']
   pull_request:
-    branches: [main]
+    branches: ['main']
 
 jobs:
-  security:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/node@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          command: test
-
-  build:
+  build-and-scan:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -35,11 +23,35 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push
+      - name: Build Docker image
         uses: docker/build-push-action@v4
         with:
           context: .
-          push: ${{ github.event_name != 'pull_request' }}
+          push: false
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/ftf-tool:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          outputs: type=docker,dest=/tmp/docker-image.tar
+
+      - name: Run Snyk to check Docker image for vulnerabilities
+        uses: snyk/actions/docker@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          image: ${{ secrets.DOCKERHUB_USERNAME }}/ftf-tool:latest
+          args: --file=Dockerfile
+
+      - name: Upload Snyk scan results to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: snyk.sarif
+
+      - name: Push Docker image
+        if: github.event_name != 'pull_request'
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/ftf-tool:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
