@@ -54,7 +54,8 @@ data = {"analysis_type": "malware", "operation": "strings"}
 
 response = requests.post(url, files=files, data=data)
 print(response.json())
-Opérations disponibles
+```
+## Opérations disponibles
 Malware
 
 strings : Extraction de chaînes
